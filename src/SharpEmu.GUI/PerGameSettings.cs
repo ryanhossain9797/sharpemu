@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace SharpEmu.GUI;
 
@@ -37,6 +38,7 @@ public sealed class PerGameSettings
     public List<string>? EnvironmentToggles { get; set; }
 
     /// <summary>True when nothing is overridden, i.e. the file may be deleted.</summary>
+    [JsonIgnore]
     public bool IsEmpty =>
         LogLevel is null &&
         ImportTraceLimit is null &&
