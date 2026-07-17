@@ -8,20 +8,11 @@ using Avalonia.Media;
 
 namespace SharpEmu.GUI;
 
-/// <summary>
-/// Editor for a single game's launch overrides. Its own popup layout, but woven
-/// from the shared <see cref="SettingRow"/> pieces and card styling the Options
-/// page uses, so the two read as one app. Each row's Override switch gates its
-/// value control; off means inherit the global setting (written as null).
-/// Persists to user/custom_configs/&lt;titleId&gt;.json.
-/// </summary>
 public sealed class PerGameSettingsDialog : Window
 {
     private static readonly string[] LogLevels =
         { "Trace", "Debug", "Info", "Warning", "Error", "Critical" };
 
-    // The same SHARPEMU_* switches the global Environment tab exposes; shown by
-    // their raw names here too so the two surfaces match.
     private static readonly string[] EnvToggles =
     {
         "SHARPEMU_BTHID_UNAVAILABLE",
@@ -67,8 +58,6 @@ public sealed class PerGameSettingsDialog : Window
         WindowStartupLocation = WindowStartupLocation.CenterOwner;
         CanResize = false;
 
-        // Match the launcher's own backdrop (BgBrush), as ConsoleWindow does for
-        // its code-built window, so the cards sit on the same dark surface.
         Background = new SolidColorBrush(Color.Parse("#0D1017"));
 
         _strict.OnContent = _logToFile.OnContent = loc.Get("Common.On");
@@ -96,7 +85,6 @@ public sealed class PerGameSettingsDialog : Window
         content.Children.Add(new TextBlock
         {
             Text = loc.Get("PerGame.InheritNote"),
-            // Mirrors MutedBrush; hardcoded to match ConsoleWindow's code-built style.
             Foreground = new SolidColorBrush(Color.Parse("#8B94A7")),
             FontSize = 12,
         });
@@ -108,15 +96,28 @@ public sealed class PerGameSettingsDialog : Window
         var cancel = new Button { Content = loc.Get("Common.Cancel"), Classes = { "ghost" } };
         save.Click += (_, _) => { Persist(); Close(); };
         cancel.Click += (_, _) => Close();
-        content.Children.Add(new StackPanel
-        {
-            Orientation = Orientation.Horizontal,
-            Spacing = 8,
-            HorizontalAlignment = HorizontalAlignment.Right,
-            Children = { cancel, save },
-        });
 
-        Content = new ScrollViewer { Content = content };
+        var buttonBar = new Border
+        {
+            BorderBrush = new SolidColorBrush(Color.Parse("#8B94A7")) { Opacity = 0.25 },
+            BorderThickness = new Thickness(0, 1, 0, 0),
+            Padding = new(16),
+            Child = new StackPanel
+            {
+                Orientation = Orientation.Horizontal,
+                Spacing = 8,
+                HorizontalAlignment = HorizontalAlignment.Right,
+                Children = { cancel, save },
+            },
+        };
+
+        var root = new Grid { RowDefinitions = new RowDefinitions("*,Auto") };
+        var scroller = new ScrollViewer { Content = content };
+        Grid.SetRow(scroller, 0);
+        Grid.SetRow(buttonBar, 1);
+        root.Children.Add(scroller);
+        root.Children.Add(buttonBar);
+        Content = root;
 
         LoadValues(global);
         _envRow.PropertyChanged += (_, e) =>
@@ -153,7 +154,6 @@ public sealed class PerGameSettingsDialog : Window
 
     private void LoadValues(GuiSettings global)
     {
-        // Base every control on the global value, then flag any existing overrides.
         _logLevel.SelectedItem = Array.IndexOf(LogLevels, global.LogLevel) >= 0 ? global.LogLevel : "Info";
         _trace.Value = global.ImportTraceLimit;
         _strict.IsChecked = global.StrictDynlibResolution;
@@ -169,9 +169,6 @@ public sealed class PerGameSettingsDialog : Window
             return;
         }
 
-        // Ignore an out-of-range level (hand-edited/legacy file) rather than
-        // enabling an override the combo can't represent, which would then be
-        // written back as null and silently drop the whole file on save.
         if (existing.LogLevel is { } level && Array.IndexOf(LogLevels, level) >= 0)
         {
             _logLevelRow.IsOverridden = true;

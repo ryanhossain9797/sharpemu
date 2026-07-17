@@ -34,9 +34,6 @@ SPDX-License-Identifier: GPL-2.0-or-later
     <SolidColorBrush x:Key="TileHoverBrush" Color="#1A2130" />
     <SolidColorBrush x:Key="TileSelectedBrush" Color="#212A3F" />
 
-    <!-- Shared settings row: label + description on the left, value control on
-         the right. Used by the Options page and the per-game dialog. With
-         ShowOverride, an inherit/override switch gates the value control. -->
     <ControlTheme x:Key="{x:Type local:SettingRow}" TargetType="local:SettingRow">
       <Setter Property="Template">
         <ControlTemplate>

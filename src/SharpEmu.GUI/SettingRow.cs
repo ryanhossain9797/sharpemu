@@ -10,16 +10,6 @@ using Avalonia.Media;
 
 namespace SharpEmu.GUI;
 
-/// <summary>
-/// One settings row: a label and description on the left and a value control
-/// (the <see cref="ContentControl.Content"/>) on the right, styled to match the
-/// Options page cards. Shared by both the Options page and the per-game dialog so
-/// the two read as one app.
-///
-/// When <see cref="ShowOverride"/> is set (the per-game dialog), an extra toggle
-/// appears; while it is off the value control is disabled and the setting
-/// inherits the global value. The Options page leaves it off.
-/// </summary>
 public sealed class SettingRow : ContentControl
 {
     public static readonly StyledProperty<string?> LabelProperty =
@@ -53,25 +43,18 @@ public sealed class SettingRow : ContentControl
         set => SetValue(DescriptionProperty, value);
     }
 
-    /// <summary>Show the per-row "override" toggle (per-game editor); off for the global Options page.</summary>
     public bool ShowOverride
     {
         get => GetValue(ShowOverrideProperty);
         set => SetValue(ShowOverrideProperty, value);
     }
 
-    /// <summary>Whether this row overrides the global value. Only meaningful when <see cref="ShowOverride"/> is true.</summary>
     public bool IsOverridden
     {
         get => GetValue(IsOverriddenProperty);
         set => SetValue(IsOverriddenProperty, value);
     }
 
-    /// <summary>
-    /// Optional font for the label only. Left unset the label inherits the theme font;
-    /// set it (e.g. a monospace family) for rows whose label is a literal identifier
-    /// such as the SHARPEMU_* environment-variable names.
-    /// </summary>
     public FontFamily? LabelFontFamily
     {
         get => GetValue(LabelFontFamilyProperty);
@@ -100,8 +83,6 @@ public sealed class SettingRow : ContentControl
         }
     }
 
-    // Apply the custom label font only when one is set; otherwise leave the
-    // label inheriting the theme font so every other row stays consistent.
     private void UpdateLabelFont()
     {
         if (_label is not null && LabelFontFamily is { } family)
@@ -110,7 +91,6 @@ public sealed class SettingRow : ContentControl
         }
     }
 
-    // The value control is live unless an override toggle is shown and unchecked.
     private void UpdateSlotEnabled()
     {
         if (_slot is not null)
