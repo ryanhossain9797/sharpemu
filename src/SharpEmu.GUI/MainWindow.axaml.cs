@@ -584,27 +584,27 @@ public partial class MainWindow : Window
         EnvTabItem.Header = loc.Get("Options.Env.Tab");
         EnvSectionTitle.Text = loc.Get("Options.Section.Environment");
         EnvDesc.Text = loc.Get("Options.Env.Desc");
-        EnvBthidDesc.Text = loc.Get("Options.Env.Bthid.Desc");
-        EnvLoopGuardDesc.Text = loc.Get("Options.Env.LoopGuard.Desc");
-        EnvWritableApp0Desc.Text = loc.Get("Options.Env.WritableApp0.Desc");
-        EnvVkValidationDesc.Text = loc.Get("Options.Env.VkValidation.Desc");
-        EnvDumpSpirvDesc.Text = loc.Get("Options.Env.DumpSpirv.Desc");
-        EnvLogDirectMemoryDesc.Text = loc.Get("Options.Env.LogDirectMemory.Desc");
-        EnvLogIoDesc.Text = loc.Get("Options.Env.LogIo.Desc");
-        EnvLogNpDesc.Text = loc.Get("Options.Env.LogNp.Desc");
+        EnvBthidRow.Description = loc.Get("Options.Env.Bthid.Desc");
+        EnvLoopGuardRow.Description = loc.Get("Options.Env.LoopGuard.Desc");
+        EnvWritableApp0Row.Description = loc.Get("Options.Env.WritableApp0.Desc");
+        EnvVkValidationRow.Description = loc.Get("Options.Env.VkValidation.Desc");
+        EnvDumpSpirvRow.Description = loc.Get("Options.Env.DumpSpirv.Desc");
+        EnvLogDirectMemoryRow.Description = loc.Get("Options.Env.LogDirectMemory.Desc");
+        EnvLogIoRow.Description = loc.Get("Options.Env.LogIo.Desc");
+        EnvLogNpRow.Description = loc.Get("Options.Env.LogNp.Desc");
         EmulationSectionTitle.Text = loc.Get("Options.Section.Emulation");
         LoggingSectionTitle.Text = loc.Get("Options.Section.Logging");
         LauncherSectionTitle.Text = loc.Get("Options.Section.Launcher");
 
-        CpuEngineLabel.Text = loc.Get("Options.CpuEngine.Label");
-        CpuEngineDesc.Text = loc.Get("Options.CpuEngine.Desc");
+        CpuEngineRow.Label = loc.Get("Options.CpuEngine.Label");
+        CpuEngineRow.Description = loc.Get("Options.CpuEngine.Desc");
         CpuEngineNativeItem.Content = loc.Get("Options.CpuEngine.Native");
 
-        StrictLabel.Text = loc.Get("Options.Strict.Label");
-        StrictDesc.Text = loc.Get("Options.Strict.Desc");
+        StrictRow.Label = loc.Get("Options.Strict.Label");
+        StrictRow.Description = loc.Get("Options.Strict.Desc");
 
-        LogLevelLabel.Text = loc.Get("Options.LogLevel.Label");
-        LogLevelDesc.Text = loc.Get("Options.LogLevel.Desc");
+        LogLevelRow.Label = loc.Get("Options.LogLevel.Label");
+        LogLevelRow.Description = loc.Get("Options.LogLevel.Desc");
         LogLevelTraceItem.Content = loc.Get("Options.LogLevel.Trace");
         LogLevelDebugItem.Content = loc.Get("Options.LogLevel.Debug");
         LogLevelInfoItem.Content = loc.Get("Options.LogLevel.Info");
@@ -612,29 +612,29 @@ public partial class MainWindow : Window
         LogLevelErrorItem.Content = loc.Get("Options.LogLevel.Error");
         LogLevelCriticalItem.Content = loc.Get("Options.LogLevel.Critical");
 
-        TraceImportsLabel.Text = loc.Get("Options.TraceImports.Label");
-        TraceImportsDesc.Text = loc.Get("Options.TraceImports.Desc");
+        TraceImportsRow.Label = loc.Get("Options.TraceImports.Label");
+        TraceImportsRow.Description = loc.Get("Options.TraceImports.Desc");
 
-        LogToFileLabel.Text = loc.Get("Options.LogToFile.Label");
-        LogToFileDesc.Text = loc.Get("Options.LogToFile.Desc");
+        LogToFileRow.Label = loc.Get("Options.LogToFile.Label");
+        LogToFileRow.Description = loc.Get("Options.LogToFile.Desc");
 
-        LogFilePathLabel.Text = loc.Get("Options.LogFilePath.Label");
+        LogFilePathRow.Label = loc.Get("Options.LogFilePath.Label");
         SelectLogFilePathButton.Content = loc.Get("Options.LogFilePath.Select");
         UpdateLogFilePathText();
 
-        OverrideLogFileLabel.Text = loc.Get("Options.OverrideLogFile.Label");
-        OverrideLogFileDesc.Text = loc.Get("Options.OverrideLogFile.Desc");
+        OverrideLogFileRow.Label = loc.Get("Options.OverrideLogFile.Label");
+        OverrideLogFileRow.Description = loc.Get("Options.OverrideLogFile.Desc");
 
-        LanguageLabel.Text = loc.Get("Options.Language.Label");
-        LanguageDesc.Text = loc.Get("Options.Language.Desc");
+        LanguageRow.Label = loc.Get("Options.Language.Label");
+        LanguageRow.Description = loc.Get("Options.Language.Desc");
 
-        TitleMusicLabel.Text = loc.Get("Options.TitleMusic.Label");
-        TitleMusicDesc.Text = loc.Get("Options.TitleMusic.Desc");
+        TitleMusicRow.Label = loc.Get("Options.TitleMusic.Label");
+        TitleMusicRow.Description = loc.Get("Options.TitleMusic.Desc");
 
-        DiscordLabel.Text = loc.Get("Options.Discord.Label");
-        DiscordDesc.Text = loc.Get("Options.Discord.Desc");
-        AutoUpdateLabel.Text = loc.Get("Updater.Auto.Label");
-        AutoUpdateDesc.Text = loc.Get("Updater.Auto.Desc");
+        DiscordRow.Label = loc.Get("Options.Discord.Label");
+        DiscordRow.Description = loc.Get("Options.Discord.Desc");
+        AutoUpdateRow.Label = loc.Get("Updater.Auto.Label");
+        AutoUpdateRow.Description = loc.Get("Updater.Auto.Desc");
 
         foreach (var toggle in new[] { StrictToggle, LogToFileToggle, OverrideLogFileToggle, TitleMusicToggle, DiscordToggle, AutoUpdateToggle })
         {
@@ -954,7 +954,7 @@ public partial class MainWindow : Window
 
     private void UpdateLogFilePathText()
     {
-        LogFilePathText.Text = string.IsNullOrWhiteSpace(_settings.LogFilePath)
+        LogFilePathRow.Description = string.IsNullOrWhiteSpace(_settings.LogFilePath)
             ? Localization.Instance.Get("Options.LogFilePath.Default")
             : _settings.LogFilePath;
     }
