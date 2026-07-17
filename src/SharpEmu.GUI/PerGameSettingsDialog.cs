@@ -20,17 +20,18 @@ public sealed class PerGameSettingsDialog : Window
     private static readonly string[] LogLevels =
         { "Trace", "Debug", "Info", "Warning", "Error", "Critical" };
 
-    // Matches the SHARPEMU_* switches the global Environment tab exposes.
-    private static readonly (string Name, string Label)[] EnvToggles =
+    // The same SHARPEMU_* switches the global Environment tab exposes; shown by
+    // their raw names here too so the two surfaces match.
+    private static readonly string[] EnvToggles =
     {
-        ("SHARPEMU_BTHID_UNAVAILABLE", "Disable Bluetooth HID"),
-        ("SHARPEMU_DISABLE_IMPORT_LOOP_GUARD", "Disable import loop guard"),
-        ("SHARPEMU_WRITABLE_APP0", "Writable /app0"),
-        ("SHARPEMU_VK_VALIDATION", "Vulkan validation layers"),
-        ("SHARPEMU_DUMP_SPIRV", "Dump SPIR-V"),
-        ("SHARPEMU_LOG_DIRECT_MEMORY", "Log direct memory"),
-        ("SHARPEMU_LOG_IO", "Log I/O"),
-        ("SHARPEMU_LOG_NP", "Log NP"),
+        "SHARPEMU_BTHID_UNAVAILABLE",
+        "SHARPEMU_DISABLE_IMPORT_LOOP_GUARD",
+        "SHARPEMU_WRITABLE_APP0",
+        "SHARPEMU_VK_VALIDATION",
+        "SHARPEMU_DUMP_SPIRV",
+        "SHARPEMU_LOG_DIRECT_MEMORY",
+        "SHARPEMU_LOG_IO",
+        "SHARPEMU_LOG_NP",
     };
 
     private readonly string _titleId;
@@ -45,10 +46,10 @@ public sealed class PerGameSettingsDialog : Window
     };
 
     private readonly SettingRow _strictRow;
-    private readonly ToggleSwitch _strict = new() { OnContent = "On", OffContent = "Off" };
+    private readonly ToggleSwitch _strict = new();
 
     private readonly SettingRow _logToFileRow;
-    private readonly ToggleSwitch _logToFile = new() { OnContent = "On", OffContent = "Off" };
+    private readonly ToggleSwitch _logToFile = new();
 
     private readonly SettingRow _envRow;
     private readonly StackPanel _envList = new() { Orientation = Orientation.Vertical, Spacing = 8, Margin = new(0, 4, 0, 0) };
@@ -57,26 +58,36 @@ public sealed class PerGameSettingsDialog : Window
     public PerGameSettingsDialog(string titleId, string displayName, GuiSettings global)
     {
         _titleId = titleId;
-        Title = $"Per-game settings — {displayName} ({titleId})";
+        var loc = Localization.Instance;
+
+        Title = loc.Format("PerGame.Title", displayName, titleId);
         Width = 520;
+        MaxHeight = 720;
         SizeToContent = SizeToContent.Height;
         WindowStartupLocation = WindowStartupLocation.CenterOwner;
         CanResize = false;
 
-        _logLevelRow = Row("Log level", "Verbosity of the emulator console output.", _logLevel);
-        _traceRow = Row("Import trace limit", "Trace the first N imports per module (0 = off).", _trace);
-        _strictRow = Row("Strict dynlib resolution", "Fail the launch when an imported symbol cannot be resolved.", _strict);
-        _logToFileRow = Row("Log to file", "Mirror emulator output to a log file.", _logToFile);
+        // Match the launcher's own backdrop (BgBrush), as ConsoleWindow does for
+        // its code-built window, so the cards sit on the same dark surface.
+        Background = new SolidColorBrush(Color.Parse("#0D1017"));
+
+        _strict.OnContent = _logToFile.OnContent = loc.Get("Common.On");
+        _strict.OffContent = _logToFile.OffContent = loc.Get("Common.Off");
+
+        _logLevelRow = Row(loc.Get("Options.LogLevel.Label"), loc.Get("Options.LogLevel.Desc"), _logLevel);
+        _traceRow = Row(loc.Get("Options.TraceImports.Label"), loc.Get("Options.TraceImports.Desc"), _trace);
+        _strictRow = Row(loc.Get("Options.Strict.Label"), loc.Get("Options.Strict.Desc"), _strict);
+        _logToFileRow = Row(loc.Get("Options.LogToFile.Label"), loc.Get("Options.LogToFile.Desc"), _logToFile);
         _envRow = new SettingRow
         {
-            Label = "Environment toggles",
-            Description = "Override the global set of SHARPEMU_* switches for this game.",
+            Label = loc.Get("PerGame.EnvToggles.Label"),
+            Description = loc.Get("PerGame.EnvToggles.Desc"),
             ShowOverride = true,
         };
 
-        foreach (var (name, label) in EnvToggles)
+        foreach (var name in EnvToggles)
         {
-            var box = new ToggleSwitch { OnContent = label, OffContent = label };
+            var box = new ToggleSwitch { OnContent = name, OffContent = name };
             _envBoxes.Add((name, box));
             _envList.Children.Add(box);
         }
@@ -84,16 +95,17 @@ public sealed class PerGameSettingsDialog : Window
         var content = new StackPanel { Orientation = Orientation.Vertical, Spacing = 12, Margin = new(16) };
         content.Children.Add(new TextBlock
         {
-            Text = "Unchecked rows inherit the global defaults.",
+            Text = loc.Get("PerGame.InheritNote"),
+            // Mirrors MutedBrush; hardcoded to match ConsoleWindow's code-built style.
             Foreground = new SolidColorBrush(Color.Parse("#8B94A7")),
             FontSize = 12,
         });
-        content.Children.Add(Card("EMULATION", _strictRow));
-        content.Children.Add(Card("LOGGING", _logLevelRow, _traceRow, _logToFileRow));
-        content.Children.Add(Card("ENVIRONMENT", _envRow, _envList));
+        content.Children.Add(Card(loc.Get("Options.Section.Emulation"), _strictRow));
+        content.Children.Add(Card(loc.Get("Options.Section.Logging"), _logLevelRow, _traceRow, _logToFileRow));
+        content.Children.Add(Card(loc.Get("Options.Section.Environment"), _envRow, _envList));
 
-        var save = new Button { Content = "Save", Classes = { "accent" } };
-        var cancel = new Button { Content = "Cancel", Classes = { "ghost" } };
+        var save = new Button { Content = loc.Get("Common.Save"), Classes = { "accent" } };
+        var cancel = new Button { Content = loc.Get("Common.Cancel"), Classes = { "ghost" } };
         save.Click += (_, _) => { Persist(); Close(); };
         cancel.Click += (_, _) => Close();
         content.Children.Add(new StackPanel
@@ -157,7 +169,15 @@ public sealed class PerGameSettingsDialog : Window
             return;
         }
 
-        if (existing.LogLevel is { } level) { _logLevelRow.IsOverridden = true; _logLevel.SelectedItem = level; }
+        // Ignore an out-of-range level (hand-edited/legacy file) rather than
+        // enabling an override the combo can't represent, which would then be
+        // written back as null and silently drop the whole file on save.
+        if (existing.LogLevel is { } level && Array.IndexOf(LogLevels, level) >= 0)
+        {
+            _logLevelRow.IsOverridden = true;
+            _logLevel.SelectedItem = level;
+        }
+
         if (existing.ImportTraceLimit is { } t) { _traceRow.IsOverridden = true; _trace.Value = t; }
         if (existing.StrictDynlibResolution is { } s) { _strictRow.IsOverridden = true; _strict.IsChecked = s; }
         if (existing.LogToFile is { } l) { _logToFileRow.IsOverridden = true; _logToFile.IsChecked = l; }

@@ -575,6 +575,7 @@ public partial class MainWindow : Window
         CtxOpenFolder.Header = loc.Get("Library.Context.OpenFolder");
         CtxCopyPath.Header = loc.Get("Library.Context.CopyPath");
         CtxCopyTitleId.Header = loc.Get("Library.Context.CopyTitleId");
+        CtxGameSettings.Header = loc.Get("Library.Context.GameSettings");
         CtxRemove.Header = loc.Get("Library.Context.Remove");
 
         EmptyAddFolderButton.Content = loc.Get("Library.Empty.AddFolder");
@@ -1381,6 +1382,7 @@ public partial class MainWindow : Window
         GameList.SelectedItem = game;
         CtxLaunch.IsEnabled = !_isRunning;
         CtxCopyTitleId.IsEnabled = game.TitleId is not null;
+        CtxGameSettings.IsEnabled = !string.IsNullOrWhiteSpace(game.TitleId);
     }
 
     private void OpenSelectedGameSettings()
@@ -1691,8 +1693,9 @@ public partial class MainWindow : Window
             return;
         }
 
-        var resolvedTitleId = titleId ?? _allGames
-            .FirstOrDefault(game => game.Path.Equals(ebootPath, FilePathComparison))?.TitleId;
+        var resolvedTitleId = string.IsNullOrWhiteSpace(titleId)
+            ? _allGames.FirstOrDefault(game => game.Path.Equals(ebootPath, FilePathComparison))?.TitleId
+            : titleId;
         var effective = EffectiveLaunchSettings.Resolve(_settings, PerGameSettings.Load(resolvedTitleId));
 
         _sndPreview.Stop();

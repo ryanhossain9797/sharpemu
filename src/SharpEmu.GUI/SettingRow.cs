@@ -20,7 +20,7 @@ namespace SharpEmu.GUI;
 /// appears; while it is off the value control is disabled and the setting
 /// inherits the global value. The Options page leaves it off.
 /// </summary>
-public class SettingRow : ContentControl
+public sealed class SettingRow : ContentControl
 {
     public static readonly StyledProperty<string?> LabelProperty =
         AvaloniaProperty.Register<SettingRow, string?>(nameof(Label));
