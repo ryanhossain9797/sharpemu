@@ -49,7 +49,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
                                      Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
             </StackPanel>
             <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
-              <ToggleSwitch OnContent="Override" OffContent="Inherit" MinWidth="0"
+              <ToggleSwitch OnContent="Override" OffContent="Override" MinWidth="0"
                             VerticalAlignment="Center"
                             IsVisible="{TemplateBinding ShowOverride}"
                             IsChecked="{Binding IsOverridden, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}" />
