@@ -126,6 +126,13 @@ SPDX-License-Identifier: GPL-2.0-or-later
                   </MenuItem.Icon>
                 </MenuItem>
                 <Separator />
+                <MenuItem x:Name="CtxGameSettings" Header="Game settings…">
+                  <MenuItem.Icon>
+                    <TextBlock Text="⚙" FontSize="13" Foreground="{StaticResource MutedBrush}"
+                               HorizontalAlignment="Center" VerticalAlignment="Center" />
+                  </MenuItem.Icon>
+                </MenuItem>
+                <Separator />
                 <MenuItem x:Name="CtxRemove" Header="Remove from library"
                           Foreground="{StaticResource DangerHoverBrush}">
                   <MenuItem.Icon>
