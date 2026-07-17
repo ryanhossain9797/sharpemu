@@ -104,6 +104,7 @@ public partial class MainWindow : Window
         string EbootPath,
         string DisplayName,
         string? TitleId,
+        string LogLevel,
         SharpEmuRuntimeOptions RuntimeOptions);
 
     public MainWindow()
@@ -1671,34 +1672,38 @@ public partial class MainWindow : Window
             return;
         }
 
+        var resolvedTitleId = titleId ?? _allGames
+            .FirstOrDefault(game => game.Path.Equals(ebootPath, FilePathComparison))?.TitleId;
+        var effective = EffectiveLaunchSettings.Resolve(_settings, PerGameSettings.Load(resolvedTitleId));
+
         _sndPreview.Stop();
         _consoleLines.Clear();
         _allConsoleLines.Clear();
 
         DropFileLog();
-        if (_settings.LogToFile)
+        if (effective.LogToFile)
         {
-            OpenFileLog(titleId);
+            OpenFileLog(resolvedTitleId);
         }
 
         // The isolated game child inherits these diagnostics. Keep them on the
         // launcher process so every platform receives the same launch options.
         foreach (var staleName in _appliedEnvironmentVariables)
         {
-            if (!_settings.EnvironmentToggles.Contains(staleName))
+            if (!effective.EnvironmentToggles.Contains(staleName))
             {
                 Environment.SetEnvironmentVariable(staleName, null);
             }
         }
 
         _appliedEnvironmentVariables.Clear();
-        foreach (var name in _settings.EnvironmentToggles)
+        foreach (var name in effective.EnvironmentToggles)
         {
             Environment.SetEnvironmentVariable(name, "1");
             _appliedEnvironmentVariables.Add(name);
         }
 
-        if (SharpEmuLog.TryParseLevel(_settings.LogLevel, out var logLevel))
+        if (SharpEmuLog.TryParseLevel(effective.LogLevel, out var logLevel))
         {
             SharpEmuLog.MinimumLevel = logLevel;
         }
@@ -1706,15 +1711,14 @@ public partial class MainWindow : Window
         var runtimeOptions = new SharpEmuRuntimeOptions
         {
             CpuEngine = CpuExecutionEngine.NativeOnly,
-            StrictDynlibResolution = _settings.StrictDynlibResolution,
-            ImportTraceLimit = Math.Max(0, _settings.ImportTraceLimit),
+            StrictDynlibResolution = effective.StrictDynlibResolution,
+            ImportTraceLimit = Math.Max(0, effective.ImportTraceLimit),
         };
 
         _isRunning = true;
         _runningGameName = displayName;
         SessionGameTitle.Text = displayName;
-        _runningGameTitleId = titleId ?? _allGames
-            .FirstOrDefault(game => game.Path.Equals(ebootPath, FilePathComparison))?.TitleId;
+        _runningGameTitleId = resolvedTitleId;
         _runningSinceUnixSeconds = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
         StatusDot.Fill = SuccessLineBrush;
         StatusText.Text = Localization.Instance.Format("Launch.Running", displayName);
@@ -1727,6 +1731,7 @@ public partial class MainWindow : Window
             Path.GetFullPath(ebootPath),
             displayName,
             _runningGameTitleId,
+            effective.LogLevel,
             runtimeOptions);
 
         if (_gameSurfaceHost?.Surface is { } surface)
@@ -1895,7 +1900,7 @@ public partial class MainWindow : Window
         var arguments = new List<string>
         {
             "--cpu-engine=native",
-            $"--log-level={_settings.LogLevel}",
+            $"--log-level={launch.LogLevel}",
         };
         if (launch.RuntimeOptions.StrictDynlibResolution)
         {
