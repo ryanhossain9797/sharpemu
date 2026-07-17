@@ -42,7 +42,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
         <ControlTemplate>
           <Grid ColumnDefinitions="*,Auto">
             <StackPanel VerticalAlignment="Center" Spacing="2" Margin="0,0,16,0">
-              <TextBlock Text="{TemplateBinding Label}" FontSize="13" />
+              <TextBlock x:Name="PART_Label" Text="{TemplateBinding Label}" FontSize="13" />
               <TextBlock Text="{TemplateBinding Description}" FontSize="11"
                          Foreground="{StaticResource MutedBrush}" TextWrapping="Wrap"
                          IsVisible="{Binding Description, RelativeSource={RelativeSource TemplatedParent},
